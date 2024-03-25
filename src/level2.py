@@ -13,9 +13,9 @@ pygame.display.set_caption('Breakout')
 
 #define font
 font = pygame.font.SysFont('Constantia', 30)
-bg_img = pygame.image.load("/Users/mattclancy/Desktop/images/davies-designs-studio-f5_lfi2S-d4-unsplash.jpg")
+bg_img = pygame.image.load("./images/davies-designs-studio-f5_lfi2S-d4-unsplash.jpg")
 screen.blit(bg_img, (0, 0))
-brick_img = pygame.image.load("/Users/mattclancy/Desktop/images/—Pngtree—red brick wall_5410880.png")
+# brick_img = pygame.image.load("/Users/mattclancy/Desktop/images/—Pngtree—red brick wall_5410880.png")
 
 #define colours
 bg = (234, 218, 184)
