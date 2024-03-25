@@ -13,18 +13,19 @@ pygame.display.set_caption('Breakout')
 
 #define font
 font = pygame.font.SysFont('Constantia', 30)
+
 # bg_img = pygame.image.load("./images/davies-designs-studio-f5_lfi2S-d4-unsplash.jpg")
 # screen.blit(bg_img, (0, 0))
 # brick_img = pygame.image.load("/Users/mattclancy/Desktop/images/—Pngtree—red brick wall_5410880.png")
 
 # attempt to replace ball with image
-x = 1
-y = 1
-scale = 1
+# x = 1
+# y = 1
+# scale = 1
 ball_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_mushroom.png")
-ball_img = pygame.transform.scale(ball_img, (ball_img.get_width() * scale, ball_img.get_height() * scale))
-rect = ball_img.get_rect()
-rect.center = (x, y)
+
+# rect = ball_img.get_rect()
+# rect.center = (x, y)
 
 #define colours
 bg = (234, 218, 184)
@@ -238,14 +239,10 @@ class game_ball():
 		return self.game_over
 
 
-	def draw(self):
+	 # def draw(self):
 		# pygame.draw.circle(screen, paddle_col, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad)
 		# pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad, 3)
 		
-		#ball into image
-		screen.blit(ball_img, rect)
-
-
 
 	def reset(self, x, y):
 		self.ball_rad = 10
@@ -256,6 +253,8 @@ class game_ball():
 		self.speed_y = -4
 		self.speed_max = 5
 		self.game_over = 0
+
+
 
 
 
@@ -270,17 +269,22 @@ player_paddle = paddle()
 #create ball
 ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
 
+#load ball img
+ball_img = pygame.transform.scale(ball_img, (ball.ball_rad * 5, ball.ball_rad * 5))
+
 run = True
 while run:
     
 	clock.tick(fps)
+
+	screen.fill(bg)
 	
 	# screen.blit(bg_img, (0,0))
 
 	#draw all objects
 	wall.draw_wall()
 	player_paddle.draw()
-	ball.draw()
+	# ball.draw()
 
 	if live_ball:
 		#draw paddle
@@ -289,6 +293,7 @@ while run:
 		game_over = ball.move()
 		if game_over != 0:
 			live_ball = False
+		screen.blit(ball_img, (ball.rect.x, ball.rect.y))  # Blit ball image onto screen
 
 
 	#print player instructions
