@@ -1,8 +1,9 @@
 import random
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
-
+mixer.init()
 pygame.init()
 
 screen_width = 1400
@@ -39,7 +40,9 @@ paddle_outline = (100, 100, 100)
 #text colour
 text_col = (78, 81, 139)
 
-
+#load music and sounds
+pygame.mixer.music.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
+pygame.mixer.music.play(-1, 0.0)
 
 #define game variables
 cols = 6
