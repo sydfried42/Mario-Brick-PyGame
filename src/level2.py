@@ -19,11 +19,20 @@ font = pygame.font.SysFont('Constantia', 30)
 # screen.blit(bg_img, (0, 0))
 # brick_img = pygame.image.load("/Users/mattclancy/Desktop/images/—Pngtree—red brick wall_5410880.png")
 
-# attempt to replace ball with image
+# replace ball with image
 # x = 1
 # y = 1
 # scale = 1
 ball_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_mushroom.png")
+
+# replace paddle with image
+paddle_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_greentube.png")
+# Scale the image to a larger size
+new_paddle_width = 1200  # Adjust width as needed
+new_paddle_height = 240  # Adjust height as needed
+scale = 10
+paddle_img = pygame.transform.scale(paddle_img, (new_paddle_width * scale, new_paddle_height * scale))
+
 
 # rect = ball_img.get_rect()
 # rect.center = (x, y)
@@ -144,9 +153,9 @@ class paddle():
 			self.rect.x += self.speed
 			self.direction = 1
 
-	def draw(self):
-		pygame.draw.rect(screen, paddle_col, self.rect)
-		pygame.draw.rect(screen, paddle_outline, self.rect, 3)
+	#def draw(self):
+		# pygame.draw.rect(screen, paddle_col, self.rect)
+		# pygame.draw.rect(screen, paddle_outline, self.rect, 3)
 
 
 	def reset(self):
@@ -275,6 +284,9 @@ ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y -
 #load ball img
 ball_img = pygame.transform.scale(ball_img, (ball.ball_rad * 5, ball.ball_rad * 5))
 
+#load paddle img
+paddle_img = pygame.transform.scale(paddle_img, (player_paddle.width, player_paddle.height))
+
 run = True
 while run:
     
@@ -286,11 +298,12 @@ while run:
 
 	#draw all objects
 	wall.draw_wall()
-	player_paddle.draw()
+	# player_paddle.draw()
 	# ball.draw()
 
 	if live_ball:
 		#draw paddle
+		screen.blit(paddle_img, (player_paddle.rect.x, player_paddle.rect.y))  # Blit paddle image onto screen
 		player_paddle.move()
 		#draw ball
 		game_over = ball.move()
