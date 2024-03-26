@@ -73,6 +73,14 @@ class wall():
 	def __init__(self):
 		self.width = screen_width // cols
 		self.height = 50
+		self.brick_imgs = [
+            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_1.png'),
+            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_2.png'),
+            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_3.png')
+        ]
+
+		# Scale the images smaller by 500%
+		self.brick_imgs = [pygame.transform.scale(img, (int(self.width * 0.9), int(self.height * 0.9))) for img in self.brick_imgs]
 
 	def create_wall(self):
 		self.blocks = []
@@ -121,19 +129,28 @@ class wall():
 			self.blocks.append(block_row)
 			
             
-	def draw_wall(self):
-		for row in self.blocks:
-			for block in row:
+	# def draw_wall(self):
+		# for row in self.blocks:
+			# for block in row:
 				#assign a colour based on block strength
-				if block[1] == 3:
-					block_col = block_blue
-				elif block[1] == 2:
-					block_col = block_green
-				elif block[1] == 1:
-					block_col = block_red
-				pygame.draw.rect(screen, block_col, block[0])
-				pygame.draw.rect(screen, bg, (block[0]), 2)
-
+				# if block[1] == 3:
+					# block_col = block_blue
+				# elif block[1] == 2:
+					# block_col = block_green
+				# elif block[1] == 1:
+					# block_col = block_red
+				# pygame.draw.rect(screen, block_col, block[0])
+				# pygame.draw.rect(screen, bg, (block[0]), 2)
+	def draw_wall(self):
+		for row in range(rows):
+			for col in range(cols):
+				brick_rect = pygame.Rect(col * self.width, row * self.height, self.width, self.height)
+				brick_strength = wall.blocks[row][col][1]
+				if self.blocks[row][col][1] > 0:
+					brick_img = self.brick_imgs[brick_strength - 1]  # Adjust index to match strength
+					screen.blit(brick_img, brick_rect)
+					# Draw brick if it's not destroyed
+					pygame.draw.rect(screen, block_col, self.blocks[row][col][0])
 
 
 #paddle class
