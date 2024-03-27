@@ -23,10 +23,10 @@ font = pygame.font.SysFont('Constantia', 30)
 # x = 1
 # y = 1
 # scale = 1
-ball_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_mushroom.png")
+ball_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_mushroom.png")
 
 # replace paddle with image
-paddle_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_greentube.png")
+paddle_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_greentube.png")
 # Scale the image to a larger size
 new_paddle_width = 1200  # Adjust width as needed
 new_paddle_height = 240  # Adjust height as needed
@@ -50,7 +50,7 @@ paddle_outline = (100, 100, 100)
 text_col = (78, 81, 139)
 
 #load music and sounds
-pygame.mixer.music.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
+pygame.mixer.music.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
 pygame.mixer.music.play(-1, 0.0)
 
 #define game variables
@@ -74,9 +74,9 @@ class wall():
 		self.width = screen_width // cols
 		self.height = 50
 		self.brick_imgs = [
-            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_1.png'),
-            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_2.png'),
-            pygame.image.load('/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_3.png')
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_1.png'),
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_2.png'),
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_3.png')
         ]
 
 		# Scale the images smaller by 500%
@@ -261,11 +261,10 @@ player_paddle = paddle()
 ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
 
 	#draw all objects
-	wall.draw_wall()
+wall.draw_wall()
 	# player_paddle.draw()
 	# ball.draw()
-
-	if live_ball:
+if live_ball:
 		#draw paddle
 		screen.blit(paddle_img, (player_paddle.rect.x, player_paddle.rect.y))  # Blit paddle image onto screen
 		player_paddle.move()
@@ -277,7 +276,7 @@ ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y -
 
 
 	#print player instructions
-	if not live_ball:
+if not live_ball:
 		if game_over == 0:
 			draw_text('CLICK ANYWHERE TO START', font, text_col, 500, screen_height // 2 + 100)
 			draw_text('Press C to create chaos!!!', font, text_col, 500, screen_height // 2 + 50)
@@ -291,7 +290,7 @@ ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y -
 			draw_text('Press C to create chaos!!!', font, text_col, 500, screen_height // 2 + 50)
 
 
-	for event in pygame.event.get():
+for event in pygame.event.get():
 		
 		if event.type == pygame.QUIT:
 			run = False
@@ -309,4 +308,4 @@ ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y -
 
 
 
-	pygame.display.update()
+pygame.display.update()

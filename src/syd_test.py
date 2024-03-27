@@ -21,7 +21,7 @@ bg = (234, 218, 184)
 text_col = (78, 81, 139)
 
 #load music and sounds
-pygame.mixer.music.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
+pygame.mixer.music.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
 pygame.mixer.music.play(-1, 0.0)
 
 # Game variables
@@ -33,17 +33,23 @@ live_ball = False
 game_over = 0
 
 # Load images
-ball_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_mushroom.png").convert_alpha()
+ball_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_mushroom.png").convert_alpha()
 ball_img = pygame.transform.scale(ball_img, (30, 30))  # Adjust size as needed
-
-paddle_img = pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/mario_greentube.png").convert_alpha()
+bg_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/background_3.png").convert()
+paddle_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_greentube.png").convert_alpha()
 paddle_img = pygame.transform.scale(paddle_img, (150, 30))  # Adjust size as needed
 
 brick_images = {
-    1: pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_1.png").convert_alpha(),
-    2: pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_2.png").convert_alpha(),
-    3: pygame.image.load("/Users/sydneyfriedman/Development/code/phase-3/project/phase-3-project/assets/brick_3.png").convert_alpha()
+    1: pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_1.png").convert_alpha(),
+    2: pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_2.png").convert_alpha(),
+    3: pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_3.png").convert_alpha()
 }
+bg_x1 = 0
+bg_x2 = bg_img.get_width()
+bg_x3 = bg_img.get_width() * 2
+scroll_speed = 0.5
+
+
 for level, image in brick_images.items():
     brick_images[level] = pygame.transform.scale(image, (screen_width // cols, 50))
 
@@ -119,8 +125,8 @@ class GameBall():
     def reset(self, x, y):
         self.width = 30
         self.height = 30
-        self.x = x - self.width // 2
-        self.y = y - self.height // 2
+        self.x = x
+        self.y = y 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.speed_x = 4
         self.speed_y = -4  # Adjust this value as needed
@@ -167,7 +173,7 @@ class GameBall():
                     if brick[1] > 1:
                         brick[1] -= 1
                     else:
-                        brick[0] = pygame.Rect(0, 0, 0, 0)
+                        brick[1] = 0
 
         return self.game_over
 
@@ -183,7 +189,26 @@ run = True
 while run:
     clock.tick(fps)
     screen.fill(bg)
+    screen.blit(bg_img, (bg_x1, 0))
+    screen.blit(bg_img, (bg_x2, 0))
+    screen.blit(bg_img, (bg_x3, 0))
 
+    # Update background x-coordinates for horizontal scrolling
+    bg_x1 -= scroll_speed
+    bg_x2 -= scroll_speed
+    bg_x3 -= scroll_speed
+
+    # If the first background image goes off the screen, reset its position
+    if bg_x1 <= -bg_img.get_width():
+        bg_x1 = bg_img.get_width() * 2
+
+    # If the second background image goes off the screen, reset its position
+    if bg_x2 <= -bg_img.get_width():
+        bg_x2 = bg_img.get_width() * 2
+
+    # If the third background image goes off the screen, reset its position
+    if bg_x3 <= -bg_img.get_width():
+        bg_x3 = bg_img.get_width() * 2
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -191,7 +216,8 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN and not live_ball:
             live_ball = True
             ball.reset(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
-
+            player_paddle.reset()
+            wall.create_wall()
     # Draw wall, paddle, and ball
     wall.draw_wall()
     player_paddle.draw()
