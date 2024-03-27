@@ -1,8 +1,9 @@
 import random
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
-
+mixer.init()
 pygame.init()
 
 screen_width = 1400
@@ -13,9 +14,28 @@ pygame.display.set_caption('Breakout')
 
 #define font
 font = pygame.font.SysFont('Constantia', 30)
-bg_img = pygame.image.load("./images/davies-designs-studio-f5_lfi2S-d4-unsplash.jpg")
-screen.blit(bg_img, (0, 0))
+
+# bg_img = pygame.image.load("./images/davies-designs-studio-f5_lfi2S-d4-unsplash.jpg")
+# screen.blit(bg_img, (0, 0))
 # brick_img = pygame.image.load("/Users/mattclancy/Desktop/images/—Pngtree—red brick wall_5410880.png")
+
+# replace ball with image
+# x = 1
+# y = 1
+# scale = 1
+ball_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_mushroom.png")
+
+# replace paddle with image
+paddle_img = pygame.image.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/mario_greentube.png")
+# Scale the image to a larger size
+new_paddle_width = 1200  # Adjust width as needed
+new_paddle_height = 240  # Adjust height as needed
+scale = 10
+paddle_img = pygame.transform.scale(paddle_img, (new_paddle_width * scale, new_paddle_height * scale))
+
+
+# rect = ball_img.get_rect()
+# rect.center = (x, y)
 
 #define colours
 bg = (234, 218, 184)
@@ -29,7 +49,9 @@ paddle_outline = (100, 100, 100)
 #text colour
 text_col = (78, 81, 139)
 
-
+#load music and sounds
+pygame.mixer.music.load("/Users/mattclancy/development/code/se-prep/phase-3-project/assets/Super Mario Bros. Theme Song.mp3")
+pygame.mixer.music.play(-1, 0.0)
 
 #define game variables
 cols = 6
@@ -51,6 +73,14 @@ class wall():
 	def __init__(self):
 		self.width = screen_width // cols
 		self.height = 50
+		self.brick_imgs = [
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_1.png'),
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_2.png'),
+            pygame.image.load('/Users/mattclancy/development/code/se-prep/phase-3-project/assets/brick_3.png')
+        ]
+
+		# Scale the images smaller by 500%
+		self.brick_imgs = [pygame.transform.scale(img, (int(self.width * 0.9), int(self.height * 0.9))) for img in self.brick_imgs]
 
 	def create_wall(self):
 		self.blocks = []
@@ -99,19 +129,28 @@ class wall():
 			self.blocks.append(block_row)
 			
             
-	def draw_wall(self):
-		for row in self.blocks:
-			for block in row:
+	# def draw_wall(self):
+		# for row in self.blocks:
+			# for block in row:
 				#assign a colour based on block strength
-				if block[1] == 3:
-					block_col = block_blue
-				elif block[1] == 2:
-					block_col = block_green
-				elif block[1] == 1:
-					block_col = block_red
-				pygame.draw.rect(screen, block_col, block[0])
-				pygame.draw.rect(screen, bg, (block[0]), 2)
-
+				# if block[1] == 3:
+					# block_col = block_blue
+				# elif block[1] == 2:
+					# block_col = block_green
+				# elif block[1] == 1:
+					# block_col = block_red
+				# pygame.draw.rect(screen, block_col, block[0])
+				# pygame.draw.rect(screen, bg, (block[0]), 2)
+	def draw_wall(self):
+		for row in range(rows):
+			for col in range(cols):
+				brick_rect = pygame.Rect(col * self.width, row * self.height, self.width, self.height)
+				brick_strength = wall.blocks[row][col][1]
+				if self.blocks[row][col][1] > 0:
+					brick_img = self.brick_imgs[brick_strength - 1]  # Adjust index to match strength
+					screen.blit(brick_img, brick_rect)
+					# Draw brick if it's not destroyed
+					pygame.draw.rect(screen, block_col, self.blocks[row][col][0])
 
 
 #paddle class
@@ -131,9 +170,9 @@ class paddle():
 			self.rect.x += self.speed
 			self.direction = 1
 
-	def draw(self):
-		pygame.draw.rect(screen, paddle_col, self.rect)
-		pygame.draw.rect(screen, paddle_outline, self.rect, 3)
+	#def draw(self):
+		# pygame.draw.rect(screen, paddle_col, self.rect)
+		# pygame.draw.rect(screen, paddle_outline, self.rect, 3)
 
 
 	def reset(self):
@@ -149,138 +188,95 @@ class paddle():
 
 #ball class
 class game_ball():
-	def __init__(self, x, y):
-		self.reset(x, y)
+    def __init__(self, x, y):
+        self.reset(x, y)
+
+    def move(self):
+        # Collision detection with bricks
+        for row in range(rows):
+            for col in range(cols):
+                if wall.blocks[row][col][1] > 0:
+                    if self.rect.colliderect(wall.blocks[row][col][0]):
+                        # Update brick strength
+                        wall.blocks[row][col][1] -= 1
+                        if wall.blocks[row][col][1] == 0:
+                            wall.blocks[row][col] = (pygame.Rect(0, 0, 0, 0), 0)  # Mark brick as destroyed
+
+        # Collision detection with walls
+        if self.rect.left < 0 or self.rect.right > screen_width:
+            self.speed_x *= -1
+        if self.rect.top < 0:
+            self.speed_y *= -1
+
+        # Collision detection with paddle
+        if self.rect.colliderect(player_paddle.rect):
+            self.speed_y *= -1
+
+            # Adjust ball's horizontal speed based on paddle movement
+            paddle_center = player_paddle.rect.x + player_paddle.width / 2
+            distance_from_center = self.rect.centerx - paddle_center
+            self.speed_x = distance_from_center / (player_paddle.width / 2) * self.max_speed
+
+        # Update ball's position
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+
+        # Check for game-over conditions
+        if self.rect.bottom > screen_height:
+            return True  # Game over: Ball went beyond the bottom of the screen
+        return False  # Game continues
+
+    def reset(self, x, y):
+        self.rect = pygame.Rect(x, y, self.ball_rad * 2, self.ball_rad * 2)
+        self.speed_x = 4
+        self.speed_y = -4
+        self.max_speed = 5
+
+        # Other reset logic...
 
 
-	def move(self):
-
-		#collision threshold
-		collision_thresh = 5
-
-		#start off with the assumption that the wall has been destroyed completely
-		wall_destroyed = 1
-		row_count = 0
-		for row in wall.blocks:
-			item_count = 0
-			for item in row:
-				#check collision
-				if self.rect.colliderect(item[0]):
-					#check if collision was from above
-					if abs(self.rect.bottom - item[0].top) < collision_thresh and self.speed_y > 0:
-						self.speed_y *= -1
-					#check if collision was from below
-					if abs(self.rect.top - item[0].bottom) < collision_thresh and self.speed_y < 0:
-						self.speed_y *= -1						
-					#check if collision was from left
-					if abs(self.rect.right - item[0].left) < collision_thresh and self.speed_x > 0:
-						self.speed_x *= -1
-					#check if collision was from right
-					if abs(self.rect.left - item[0].right) < collision_thresh and self.speed_x < 0:
-						self.speed_x *= -1
-					#reduce the block's strength by doing damage to it
-					if wall.blocks[row_count][item_count][1] > 1:
-						wall.blocks[row_count][item_count][1] -= 1
-					else:
-						wall.blocks[row_count][item_count][0] = (0, 0, 0, 0)
-
-				#check if block still exists, in which case the wall is not destroyed
-				if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
-					wall_destroyed = 0
-				#increase item counter
-				item_count += 1
-			#increase row counter
-			row_count += 1
-		#after iterating through all the blocks, check if the wall is destroyed
-		if wall_destroyed == 1:
-			self.game_over = 1
-
-
-
-		#check for collision with walls
-		if self.rect.left < 0 or self.rect.right > screen_width:
-			self.speed_x *= -1
-
-		#check for collision with top and bottom of the screen
-		if self.rect.top < 0:
-			self.speed_y *= -1
-		if self.rect.bottom > screen_height:
-			self.game_over = -1
-
-
-		#look for collission with paddle
-		if self.rect.colliderect(player_paddle):
-			#check if colliding from the top
-			if abs(self.rect.bottom - player_paddle.rect.top) < collision_thresh and self.speed_y > 0:
-				self.speed_y *= -1
-				self.speed_x += player_paddle.direction
-				if self.speed_x > self.speed_max:
-					self.speed_x = self.speed_max
-				elif self.speed_x < 0 and self.speed_x < -self.speed_max:
-					self.speed_x = -self.speed_max
-			else:
-				self.speed_x *= -1
-
-
-
-		self.rect.x += self.speed_x
-		self.rect.y += self.speed_y
-
-		return self.game_over
-
-
-	def draw(self):
-		pygame.draw.circle(screen, paddle_col, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad)
-		pygame.draw.circle(screen, paddle_outline, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad, 3)
-
-
-
-	def reset(self, x, y):
-		self.ball_rad = 10
-		self.x = x - self.ball_rad
-		self.y = y
-		self.rect = Rect(self.x, self.y, self.ball_rad * 2, self.ball_rad * 2)
-		self.speed_x = 4
-		self.speed_y = -4
-		self.speed_max = 5
-		self.game_over = 0
-
-
-
-#create a wall
-wall = wall()
-wall.create_wall()
-
-#create paddle
-player_paddle = paddle()
-
-
-#create ball
-ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
 
 run = True
 while run:
     
 	clock.tick(fps)
+
+	screen.fill(bg)
 	
-	screen.blit(bg_img, (0,0))
+	# screen.blit(bg_img, (0,0))
+	# Load ball img
+	ball_img = pygame.transform.scale(ball_img, (ball.ball_rad * 5, ball.ball_rad * 5))
+
+# Load paddle img
+paddle_img = pygame.transform.scale(paddle_img, (player_paddle.width, player_paddle.height))
+
+# Create a wall
+wall = wall()
+wall.create_wall()
+
+# Create paddle
+player_paddle = paddle()
+
+# Create ball
+ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
 
 	#draw all objects
-	wall.draw_wall()
-	player_paddle.draw()
-	ball.draw()
-
-	if live_ball:
+wall.draw_wall()
+	# player_paddle.draw()
+	# ball.draw()
+if live_ball:
 		#draw paddle
+		screen.blit(paddle_img, (player_paddle.rect.x, player_paddle.rect.y))  # Blit paddle image onto screen
 		player_paddle.move()
 		#draw ball
 		game_over = ball.move()
 		if game_over != 0:
 			live_ball = False
+		screen.blit(ball_img, (ball.rect.x, ball.rect.y))  # Blit ball image onto screen
 
 
 	#print player instructions
-	if not live_ball:
+if not live_ball:
 		if game_over == 0:
 			draw_text('CLICK ANYWHERE TO START', font, text_col, 500, screen_height // 2 + 100)
 			draw_text('Press C to create chaos!!!', font, text_col, 500, screen_height // 2 + 50)
@@ -294,7 +290,7 @@ while run:
 			draw_text('Press C to create chaos!!!', font, text_col, 500, screen_height // 2 + 50)
 
 
-	for event in pygame.event.get():
+for event in pygame.event.get():
 		
 		if event.type == pygame.QUIT:
 			run = False
@@ -312,4 +308,4 @@ while run:
 
 
 
-	pygame.display.update()
+pygame.display.update()
