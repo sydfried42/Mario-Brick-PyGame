@@ -8,6 +8,7 @@ pygame.init()
 # Screen dimensions
 screen_width = 1400
 screen_height = 800
+scroll_speed = 0.5
 
 # Initialize screen
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -47,7 +48,6 @@ brick_images = {
 bg_x1 = 0
 bg_x2 = bg_img.get_width()
 bg_x3 = bg_img.get_width() * 2
-scroll_speed = 0.5
 
 
 for level, image in brick_images.items():
@@ -85,8 +85,9 @@ class Wall():
     def draw_wall(self):
         for row in self.blocks:
             for block in row:
-                if block[1] in brick_images:
-                    screen.blit(brick_images[block[1]], block[0])
+                if block[1] > 0:
+                    if block[1] in brick_images:
+                        screen.blit(brick_images[block[1]], block[0])
 
 # Paddle class
 class Paddle():
@@ -161,19 +162,21 @@ class GameBall():
         # Ball collision with bricks
         for row in wall.blocks:
             for brick in row:
-                if self.rect.colliderect(brick[0]):
-                    if abs(self.rect.bottom - brick[0].top) < 10 and self.speed_y > 0:
-                        self.speed_y *= -1
-                    elif abs(self.rect.top - brick[0].bottom) < 10 and self.speed_y < 0:
-                        self.speed_y *= -1
-                    elif abs(self.rect.right - brick[0].left) < 10 and self.speed_x > 0:
-                        self.speed_x *= -1
-                    elif abs(self.rect.left - brick[0].right) < 10 and self.speed_x < 0:
-                        self.speed_x *= -1
-                    if brick[1] > 1:
-                        brick[1] -= 1
-                    else:
-                        brick[1] = 0
+                if brick[1] > 0:
+                    if self.rect.colliderect(brick[0]):
+                        if abs(self.rect.bottom - brick[0].top) < 10 and self.speed_y > 0:
+                            self.speed_y *= -1
+                        elif abs(self.rect.top - brick[0].bottom) < 10 and self.speed_y < 0:
+                            self.speed_y *= -1
+                        elif abs(self.rect.right - brick[0].left) < 10 and self.speed_x > 0:
+                            self.speed_x *= -1
+                        elif abs(self.rect.left - brick[0].right) < 10 and self.speed_x < 0:
+                            self.speed_x *= -1
+                        if brick[1] > 1:
+                            brick[1] -= 1
+                        else:
+                            brick[1] = 0
+                        break
 
         return self.game_over
 
@@ -188,10 +191,15 @@ ball = GameBall(player_paddle.x + (player_paddle.width // 2), player_paddle.y - 
 run = True
 while run:
     clock.tick(fps)
-    screen.fill(bg)
     screen.blit(bg_img, (bg_x1, 0))
     screen.blit(bg_img, (bg_x2, 0))
     screen.blit(bg_img, (bg_x3, 0))
+
+    # Draw wall, paddle, and ball
+    wall.draw_wall()
+    player_paddle.draw()
+    ball.draw()
+
 
     # Update background x-coordinates for horizontal scrolling
     bg_x1 -= scroll_speed
@@ -218,10 +226,7 @@ while run:
             ball.reset(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
             player_paddle.reset()
             wall.create_wall()
-    # Draw wall, paddle, and ball
-    wall.draw_wall()
-    player_paddle.draw()
-    ball.draw()
+
 
     # Move paddle if the game is active
     if live_ball:
@@ -238,8 +243,8 @@ while run:
             draw_text('YOU WON!', font, text_col, 240, screen_height // 2 + 50)
             draw_text('CLICK ANYWHERE TO START', font, text_col, 100, screen_height // 2 + 100)
         elif game_over == -1:
-            draw_text('YOU LOST!', font, text_col, 240, screen_height // 2 + 50)
-            draw_text('CLICK ANYWHERE TO START', font, text_col, 100, screen_height // 2 + 100)
+            draw_text('YOU LOST!', font, text_col, 500, screen_height // 2 + 50)
+            draw_text('CLICK ANYWHERE TO START', font, text_col, 500, screen_height // 2 + 100)
 
     pygame.display.update()
 
